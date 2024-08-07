@@ -22,11 +22,11 @@ const Page = () => {
 
     return <ErrorBoundary>
         
-        <Box className="container ml-auto mr-auto pb-[100px]">
+        {productsList.length > 0 ? <Box className="container ml-auto mr-auto pb-[100px]">
             {productsList.map(item => <React.Fragment key={item.product_id}>
                 <Product product={item}/>
             </React.Fragment>)}
-        </Box>
+        </Box>: <Box>Loading...</Box>}
     </ErrorBoundary>
 }
 

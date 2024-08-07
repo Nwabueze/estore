@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Center, Checkbox } from '@chakra-ui/react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { putRequest } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 interface Item {
     product_id: number;
@@ -21,7 +22,8 @@ interface OrderTableProps {
     itemsPerPage?: number;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => {
+const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 2 }) => {
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedStatus, setSelectedStatus] = useState<string>('');
     const [filteredOrders, setFilteredOrders] = useState<Order[]>(orders);
@@ -31,6 +33,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
 
     const totalPages = Math.ceil(orders.length / itemsPerPage);
 
+    const goToHomePage = () => {
+        navigate("/");
+    }
     const handleChangePage = (newPage: number) => {
         const newTotalPages = Math.ceil(filteredOrders.length / itemsPerPage);
         if (newPage > 0 && newPage <= newTotalPages) {
@@ -43,12 +48,12 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
         setCurrentPage(1); // Reset to the first page when status changes
     };
 
-    const handleSelectOrder = (e:any, order_id: number) => {
+    const handleSelectOrder = (e: any, order_id: number) => {
         // unselect the previous item
         document.getElementById(`o${selectedOrderId}`)?.click();
-        if(e.target.checked){
+        if (e.target.checked) {
             setSelectedOrderId(order_id);
-        }else{
+        } else {
             setSelectedOrderId(0);
         }
     }
@@ -56,8 +61,8 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
     // Update the status of selected order
     const updateOrderStatus = () => {
         const s = orders.filter((order) => order.order_id === selectedOrderId);
-        if(!s.length) return;
-        const data = { oder_id: s[0].order_id, user_id: s[0].user_id, status: "Picked",  };
+        if (!s.length) return;
+        const data = { oder_id: s[0].order_id, user_id: s[0].user_id, status: "Picked", };
         setLoading(true);
         putRequest("orders", data, "").then(() => {
             setLoading(false);
@@ -78,7 +83,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
         }
     }, [selectedStatus, orders]);
 
-    
+
     const currentOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const uniqueStatuses = Array.from(new Set(orders.map(order => order.status)));
@@ -86,7 +91,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
     return (
         <Box className="w-full mt-5 p-3">
             <Box className='flex'>
-                <Box className='w-[150px]'></Box>
+                <Box className='w-[150px]'>
+                    <Button variant={'outline'} colorScheme='gray' onClick={goToHomePage}>Home Page</Button>
+                </Box>
                 <Box className='ml-auto'></Box>
                 <Box className='w-[200px] p-2'>
                     <Select
@@ -120,11 +127,22 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
                             <Td>{order.order_id}</Td>
                             <Td>{order.user_id}</Td>
                             <Td>
-                                {order.items.map((item, index) => (
-                                    <Box key={index}>
-                                        Product ID: {item.product_id}, Quantity: {item.quantity}
-                                    </Box>
-                                ))}
+                                <Table size="sm" variant="simple">
+                                    <Thead>
+                                        <Tr>
+                                            <Th>Product ID</Th>
+                                            <Th>Quantity</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                        {order.items.map((item, index) => (
+                                            <Tr key={index}>
+                                                <Td>{item.product_id}</Td>
+                                                <Td>{item.quantity}</Td>
+                                            </Tr>
+                                        ))}
+                                    </Tbody>
+                                </Table>
                             </Td>
                             <Td>${order.total_price.toFixed(2)}</Td>
                             <Td>{order.status}</Td>
@@ -132,7 +150,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, itemsPerPage = 5 }) => 
                     ))}
                 </Tbody>
             </Table>
-            
+
             {/** Updating order status */}
             {selectedOrderId > 0 && <Box className='mt-2 mb-2 p-2'>
                 <Box>You've selected order with OrderId {selectedOrderId}</Box>
