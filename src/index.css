@@ -31,20 +31,36 @@ code {
   clip-path: ellipse(50% 9% at 50% 50%);
 }
 */
-.special-rounded-bottom {
-  width:120%;
-  height: 200px;
-  position:relative;
-  left: -10%;
-  bottom: 100px;
-  border-bottom-left-radius: 50%;
-  border-bottom-right-radius: 50%;
-}
+
 
 body {
   overflow-x: hidden;
 }
 
-.skewbox { transform: skew(170deg); }
-.unskew { transform: skew(-170deg); }
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 16px; /* Adjust the gap as needed */
+}
+
+.item {
+  flex: 1 1 calc(100% - 32px); /* For mobile, full width minus gap */
+  max-width: calc(100% - 32px); /* Ensure it doesn't exceed the container */
+}
+
+@media (min-width: 450px) and (max-width: 900px) { /* Tablet and above */
+  .item {
+    flex: 1 1 calc((100% / 2) - 32px); /* 3 columns with gap */
+    max-width: calc((100% / 2) - 32px); /* Ensure it doesn't exceed the container */
+  }
+}
+
+@media (min-width: 801px) { /* Tablet and above */
+  .item {
+    flex: 1 1 calc((100% / 3) - 32px); /* 3 columns with gap */
+    max-width: calc((100% / 3) - 32px); /* Ensure it doesn't exceed the container */
+  }
+}
 
